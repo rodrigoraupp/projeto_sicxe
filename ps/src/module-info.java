@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author Henrique
- *
- */
-module ps {
-}
