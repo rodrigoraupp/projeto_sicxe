@@ -31,7 +31,11 @@ public class Executor {
         int regDoisIndex;
         String proximoByte;
         int soma;
+        int sub;
         String bin;
+        int conteudoReg1;
+        int conteudoReg2;
+        String resultado;
         
         pcEmDecimal = Integer.parseInt(registradores.getRegistrador(8),2); //isso aqui é o PC em decimal
         instrucao = memoria.getMemoria(pcEmDecimal);    //opcode com flags
@@ -45,14 +49,14 @@ public class Executor {
                 regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
                 soma = converteDecimal(registradores.getRegistrador(regUmIndex)) + converteDecimal(registradores.getRegistrador(regDoisIndex));
                 bin = Integer.toBinaryString(soma);
-                registradores.setRegistrador(regDoisIndex, regularizaStringPraOitoBits(bin)); //destino é o registrador 2
+                registradores.setRegistrador(regDoisIndex, regularizaStringPra24Bits(bin)); //destino é o registrador 2
                 //incrementa PC
                 break;
                 
-            case "00000100": //CLEAR r1
+            case "10110100": //CLEAR r1
                 proximoByte = memoria.getMemoria(pcEmDecimal + 1);
                 regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
-                registradores.setRegistrador(regUmIndex, "00000000");
+                registradores.setRegistrador(regUmIndex, "000000000000000000000000");
                 //incrementa PC, não esquecerrrrrrr
                 break;
             
@@ -61,8 +65,80 @@ public class Executor {
                 regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
                 regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
                 
+                //deixa pra depois
                 //comparação gera um resultado que influencia os JUMPS
+                //incrementa pc, não esquecer
+                break;
                 
+            case "10011100": //DIVR r1, r2 =   (r2) <- r2*r1 
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
+                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+                conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                registradores.setRegistrador(regDoisIndex,regularizaStringPra24Bits(Integer.toBinaryString(conteudoReg2/conteudoReg1)));
+                //incrementar pc
+                break;
+                
+            case "10011000": //MULR r1, r2 =   (r2) <- r2*r1 
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
+                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+                conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                registradores.setRegistrador(regDoisIndex, regularizaStringPra24Bits(Integer.toBinaryString(conteudoReg2*conteudoReg1)));
+                //incrementar pc
+                break;
+                
+            case "10101100": //RMO r2 <- (r1)
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
+                registradores.setRegistrador(regDoisIndex, registradores.getRegistrador(regUmIndex));
+                //incrementar pc
+                break;
+            
+            case "10100100": //SHIFTL r1,n 
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2); //aqui tem o n
+                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+                //regDoisIndex é n, aqui faz-se o deslocamento
+                registradores.setRegistrador(regUmIndex, regularizaStringPra24Bits(Integer.toBinaryString(conteudoReg1 << (regDoisIndex-1))));
+                //incrementar pc
+                break;
+                
+            case "10101000": //SHIFTR r1, n 
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2); //aqui tem o n
+                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+                resultado = Integer.toBinaryString(conteudoReg1 >> (regDoisIndex-1));
+                while(resultado.length() != 24){
+                    resultado = resultado.charAt(0) + resultado;
+                   }
+                registradores.setRegistrador(regUmIndex, resultado);
+                //incrementar pc
+                break;
+                
+            case "10010100": //SUBR r1,r2   (r2) <-r2 -r1
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                regDoisIndex = Integer.parseInt(proximoByte.substring(4,8),2);
+                sub = converteDecimal(registradores.getRegistrador(regDoisIndex)) - converteDecimal(registradores.getRegistrador(regUmIndex));
+                bin = Integer.toBinaryString(sub);
+                registradores.setRegistrador(regDoisIndex, regularizaStringPra24Bits(bin)); //destino é o registrador
+                //incrementar pc
+                break;
+                
+            case "10111000":   //TIXR soma 1 no r1
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                regUmIndex = Integer.parseInt(proximoByte.substring(0,4),2);
+                soma = converteDecimal(registradores.getRegistrador(regUmIndex)) + 1;
+                registradores.setRegistrador(1, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                //incrementar pc
+                break;
+                                
             default:
                 throw new AssertionError();
         }
@@ -73,8 +149,8 @@ public class Executor {
         return Integer.parseInt(valor, 2);
     }
     
-    public String regularizaStringPraOitoBits(String bin){
-        while(bin.length() != 8){
+    public String regularizaStringPra24Bits(String bin){
+        while(bin.length() != 24){
             bin = "0" + bin;
         }
         return bin;

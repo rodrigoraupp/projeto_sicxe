@@ -17,7 +17,7 @@ public class Registradores {
     final int tamanho = 10;
     
     public Registradores(){
-        this.registradores = new ArrayList<> (Collections.nCopies(tamanho, "00000000"));
+        this.registradores = new ArrayList<> (Collections.nCopies(tamanho, "000000000000000000000000"));
     }
     
     public String getRegistrador(int reg){
