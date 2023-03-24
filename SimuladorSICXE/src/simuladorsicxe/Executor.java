@@ -46,6 +46,7 @@ public class Executor {
         char flagE;
         int endereco1;
         int endereco2;
+        int endereco3;
         
         pcEmDecimal = Integer.parseInt(registradores.getRegistrador(8),2); //isso aqui é o PC em decimal
         instrucao = memoria.getMemoria(pcEmDecimal);    //opcode com flags
@@ -168,39 +169,47 @@ public class Executor {
                             resultado = proximoByte.substring(4,8);
                             resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
                             endereco1 = converteDecimal(resultado); //agora é decimal
-                            resultado = memoria.getMemoria(endereco1);
+                            resultado = memoria.getMemoria(endereco1) + memoria.getMemoria(endereco1 + 1) + memoria.getMemoria(endereco1 + 2);
                             soma = soma + converteDecimal(resultado);
                             registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                         }
                         if((flagX == '0') && (flagB == '0') && (flagP == '1')){
                             
                         }
-                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
                             resultado = proximoByte.substring(4,8);
                             resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
                             endereco1 = converteDecimal(resultado); //agora é decimal
                             endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
-                            soma = soma + endereco1 + endereco2;
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma + converteDecimal(resultado);
                             registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                         }
-                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
                             resultado = proximoByte.substring(4,8);
                             resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
                             endereco1 = converteDecimal(resultado); //agora é decimal
-                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador B
-                            soma = soma + endereco1 + endereco2;
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma + converteDecimal(resultado);
                             registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                         }
-                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X
                             endereco1 = converteDecimal(registradores.getRegistrador(8)); 
-                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
-                            soma = soma + endereco1 + endereco2;
+                            endereco2 = converteDecimal(registradores.getRegistrador(1));
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma + converteDecimal(resultado);
                             registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                         }
                         if((flagX == '1') && (flagB == '1') && (flagP == '0')){
                             endereco1 = converteDecimal(registradores.getRegistrador(3)); 
                             endereco2 = converteDecimal(registradores.getRegistrador(1)); 
-                            soma = soma + endereco1 + endereco2;
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma + converteDecimal(resultado);
                             registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                         }
                     }
@@ -209,7 +218,8 @@ public class Executor {
                         resultado = resultado + terceiroByte; //tem 12 bits
                         endereco1 = converteDecimal(resultado); //agora é decimal
                         endereco2 = converteDecimal(memoria.getMemoria(endereco1));
-                        soma = soma + converteDecimal(memoria.getMemoria(endereco2));
+                        resultado = memoria.getMemoria(endereco2) + memoria.getMemoria(endereco2 + 1) + memoria.getMemoria(endereco2 + 2);
+                        soma = soma + converteDecimal(resultado);
                         registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                     }
                     if((flagN == '0') && (flagI == '1')){//imediato
@@ -226,9 +236,371 @@ public class Executor {
                 break;
                 
             case "01000000": //AND m (A) <- m...m+2
-                
+                soma = converteDecimal(registradores.getRegistrador(0));
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                flagN = instrucao.charAt(6);
+                flagI = instrucao.charAt(7);
+                flagX = proximoByte.charAt(0);
+                flagB = proximoByte.charAt(1);
+                flagP = proximoByte.charAt(2);
+                flagE = proximoByte.charAt(3);
+                //formato tipo3
+                if(flagE == '0'){
+                    //endereçamento...
+                    if((flagN == '1') && (flagI == '1')){ //direto
+                        if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            resultado = memoria.getMemoria(endereco1) + memoria.getMemoria(endereco1 + 1) + memoria.getMemoria(endereco1 + 2);
+                            soma = soma & converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '0') && (flagB == '0') && (flagP == '1')){   
+                        }
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma & converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma & converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X
+                            endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1));
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma & converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma & converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                    }
+                    if((flagN == '1') && (flagI == '0')){//indireto
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        endereco1 = converteDecimal(resultado); //agora é decimal
+                        endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                        resultado = memoria.getMemoria(endereco2) + memoria.getMemoria(endereco2 + 1) + memoria.getMemoria(endereco2 + 2);
+                        soma = soma & converteDecimal(resultado);
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                    if((flagN == '0') && (flagI == '1')){//imediato
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        soma = soma & converteDecimal(resultado);
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                }
                 break;
-                                
+            
+            case "00101000": //COMP m (A) : m...m+2
+                soma = converteDecimal(registradores.getRegistrador(0));
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                flagN = instrucao.charAt(6);
+                flagI = instrucao.charAt(7);
+                flagX = proximoByte.charAt(0);
+                flagB = proximoByte.charAt(1);
+                flagP = proximoByte.charAt(2);
+                flagE = proximoByte.charAt(3);
+                //formato tipo3
+                if(flagE == '0'){
+                    //endereçamento...
+                    if((flagN == '1') && (flagI == '1')){ //direto
+                        if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            resultado = memoria.getMemoria(endereco1) + memoria.getMemoria(endereco1 + 1) + memoria.getMemoria(endereco1 + 2);
+                            setSW(soma, converteDecimal(resultado));
+                        }
+                        if((flagX == '0') && (flagB == '0') && (flagP == '1')){   
+                        }
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            setSW(soma, converteDecimal(resultado));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            setSW(soma, converteDecimal(resultado));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X
+                            endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1));
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            setSW(soma, converteDecimal(resultado));
+                        }
+                        if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            setSW(soma, converteDecimal(resultado));
+                        }
+                    }
+                    if((flagN == '1') && (flagI == '0')){//indireto
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        endereco1 = converteDecimal(resultado); //agora é decimal
+                        endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                        resultado = memoria.getMemoria(endereco2) + memoria.getMemoria(endereco2 + 1) + memoria.getMemoria(endereco2 + 2);
+                        setSW(soma, converteDecimal(resultado));
+                    }
+                    if((flagN == '0') && (flagI == '1')){//imediato
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        setSW(soma, converteDecimal(resultado));
+                    }
+                }
+                break;
+            
+            case "00100100": //DIV m    A <- (A) / (m..m+2)         LEMBRAR DE TRATAR A DIVISÃO POR ZEROOOOOOOOOOOOOOOO
+                soma = converteDecimal(registradores.getRegistrador(0));
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                flagN = instrucao.charAt(6);
+                flagI = instrucao.charAt(7);
+                flagX = proximoByte.charAt(0);
+                flagB = proximoByte.charAt(1);
+                flagP = proximoByte.charAt(2);
+                flagE = proximoByte.charAt(3);
+                //formato tipo3
+                if(flagE == '0'){
+                    //endereçamento...
+                    if((flagN == '1') && (flagI == '1')){ //direto
+                        if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            resultado = memoria.getMemoria(endereco1) + memoria.getMemoria(endereco1 + 1) + memoria.getMemoria(endereco1 + 2);
+                            soma = soma / converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '0') && (flagB == '0') && (flagP == '1')){
+                            
+                        }
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma / converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma / converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X
+                            endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1));
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma / converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            endereco3 = endereco1 + endereco2;
+                            resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+                            soma = soma / converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                    }
+                    if((flagN == '1') && (flagI == '0')){//indireto
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        endereco1 = converteDecimal(resultado); //agora é decimal
+                        endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                        resultado = memoria.getMemoria(endereco2) + memoria.getMemoria(endereco2 + 1) + memoria.getMemoria(endereco2 + 2);
+                        soma = soma / converteDecimal(resultado);
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                    if((flagN == '0') && (flagI == '1')){//imediato
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        soma = soma / converteDecimal(resultado);
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                }
+                break;
+                
+            case "00111100": //JEQ m   (PC) <- m 
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                flagN = instrucao.charAt(6);
+                flagI = instrucao.charAt(7);
+                flagX = proximoByte.charAt(0);
+                flagB = proximoByte.charAt(1);
+                flagP = proximoByte.charAt(2);
+                flagE = proximoByte.charAt(3);
+                //formato tipo3
+                if(flagE == '0'){
+                    //endereçamento...
+                    if((flagN == '1') && (flagI == '1')){ //direto
+                        if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(resultado));
+                        }
+                        if((flagX == '0') && (flagB == '0') && (flagP == '1')){
+                            
+                        }
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                            endereco3 = endereco1 + endereco2;
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                            endereco3 = endereco1 + endereco2;
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X)
+                            endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1));
+                            endereco3 = endereco1 + endereco2;
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                        }
+                        if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            endereco3 = endereco1 + endereco2;
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                        }
+                    }
+                    if((flagN == '1') && (flagI == '0')){//indireto
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        endereco1 = converteDecimal(resultado); //agora é decimal
+                        endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                        registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco2)));
+                    }
+                    if((flagN == '0') && (flagI == '1')){//imediato
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        registradores.setRegistrador(8, regularizaStringPra24Bits(resultado));
+                    }
+                }
+                break;
+                
+            case "00110000": //JEQ m   (PC) <- m SE CC set to =
+                if(converteDecimal(registradores.getRegistrador(9)) == 0){
+                    proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                    terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                    flagN = instrucao.charAt(6);
+                    flagI = instrucao.charAt(7);
+                    flagX = proximoByte.charAt(0);
+                    flagB = proximoByte.charAt(1);
+                    flagP = proximoByte.charAt(2);
+                    flagE = proximoByte.charAt(3);
+                    //formato tipo3
+                    if(flagE == '0'){
+                        //endereçamento...
+                        if((flagN == '1') && (flagI == '1')){ //direto
+                            if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                                resultado = proximoByte.substring(4,8);
+                                resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                                registradores.setRegistrador(8, regularizaStringPra24Bits(resultado));
+                            }
+                            if((flagX == '0') && (flagB == '0') && (flagP == '1')){
+
+                            }
+                            if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
+                                resultado = proximoByte.substring(4,8);
+                                resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                                endereco1 = converteDecimal(resultado); //agora é decimal
+                                endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                                endereco3 = endereco1 + endereco2;
+                                registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                            }
+                            if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
+                                resultado = proximoByte.substring(4,8);
+                                resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                                endereco1 = converteDecimal(resultado); //agora é decimal
+                                endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
+                                endereco3 = endereco1 + endereco2;
+                                registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                            }
+                            if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X)
+                                endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                                endereco2 = converteDecimal(registradores.getRegistrador(1));
+                                endereco3 = endereco1 + endereco2;
+                                registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                            }
+                            if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                                endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                                endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                                endereco3 = endereco1 + endereco2;
+                                registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco3)));
+                            }
+                        }
+                        if((flagN == '1') && (flagI == '0')){//indireto
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                            registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(endereco2)));
+                        }
+                        if((flagN == '0') && (flagI == '1')){//imediato
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(resultado));
+                        }
+                    }
+                }
+                else{
+                    //incrementa PC normal (3bytes)
+                }
+                break;
+                
             default:
                 throw new AssertionError();
         }
@@ -246,6 +618,18 @@ public class Executor {
         return bin;
     }
     
-    
+    public void setSW(int esq, int dir){
+        int comparacao;
+        if(esq == dir){
+            comparacao = 0;
+        }
+        if(esq > dir){
+            comparacao = 1;
+        }
+        else{
+            comparacao = 2;
+        }
+        registradores.setRegistrador(9, regularizaStringPra24Bits(Integer.toBinaryString(comparacao)));
+    }
     
 }
