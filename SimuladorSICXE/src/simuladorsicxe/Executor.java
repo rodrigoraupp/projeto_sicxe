@@ -30,12 +30,22 @@ public class Executor {
         int regUmIndex;
         int regDoisIndex;
         String proximoByte;
+        String terceiroByte;
+        String quartoByte;
         int soma;
         int sub;
         String bin;
         int conteudoReg1;
         int conteudoReg2;
         String resultado;
+        char flagN;
+        char flagI;
+        char flagX;
+        char flagB;
+        char flagP;
+        char flagE;
+        int endereco1;
+        int endereco2;
         
         pcEmDecimal = Integer.parseInt(registradores.getRegistrador(8),2); //isso aqui é o PC em decimal
         instrucao = memoria.getMemoria(pcEmDecimal);    //opcode com flags
@@ -138,6 +148,86 @@ public class Executor {
                 registradores.setRegistrador(1, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
                 //incrementar pc
                 break;
+                
+            case "00011000":  // ADD m  (A) <- m...m+2
+                //analisar se é tipo 3 ou 4
+                soma = converteDecimal(registradores.getRegistrador(0));
+                proximoByte = memoria.getMemoria(pcEmDecimal + 1);
+                terceiroByte = memoria.getMemoria(pcEmDecimal + 2);
+                flagN = instrucao.charAt(6);
+                flagI = instrucao.charAt(7);
+                flagX = proximoByte.charAt(0);
+                flagB = proximoByte.charAt(1);
+                flagP = proximoByte.charAt(2);
+                flagE = proximoByte.charAt(3);
+                //formato tipo3
+                if(flagE == '0'){
+                    //endereçamento...
+                    if((flagN == '1') && (flagI == '1')){ //direto
+                        if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            resultado = memoria.getMemoria(endereco1);
+                            soma = soma + converteDecimal(resultado);
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '0') && (flagB == '0') && (flagP == '1')){
+                            
+                        }
+                        if((flagX == '0') && (flagB == '1') && (flagP == '0')){
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
+                            soma = soma + endereco1 + endereco2;
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '0')){
+                            resultado = proximoByte.substring(4,8);
+                            resultado = resultado + terceiroByte; //tem 12 bits         0000 00000000
+                            endereco1 = converteDecimal(resultado); //agora é decimal
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador B
+                            soma = soma + endereco1 + endereco2;
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '0') && (flagP == '1')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(8)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            soma = soma + endereco1 + endereco2;
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                        if((flagX == '1') && (flagB == '1') && (flagP == '0')){
+                            endereco1 = converteDecimal(registradores.getRegistrador(3)); 
+                            endereco2 = converteDecimal(registradores.getRegistrador(1)); 
+                            soma = soma + endereco1 + endereco2;
+                            registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                        }
+                    }
+                    if((flagN == '1') && (flagI == '0')){//indireto
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        endereco1 = converteDecimal(resultado); //agora é decimal
+                        endereco2 = converteDecimal(memoria.getMemoria(endereco1));
+                        soma = soma + converteDecimal(memoria.getMemoria(endereco2));
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                    if((flagN == '0') && (flagI == '1')){//imediato
+                        resultado = proximoByte.substring(4,8);
+                        resultado = resultado + terceiroByte; //tem 12 bits
+                        soma = soma + converteDecimal(resultado);
+                        registradores.setRegistrador(0, regularizaStringPra24Bits(Integer.toBinaryString(soma)));
+                    }
+                }
+                //formato tipo4
+                else{
+                    
+                }
+                break;
+                
+            case "01000000": //AND m (A) <- m...m+2
+                
+                break;
                                 
             default:
                 throw new AssertionError();
@@ -155,4 +245,7 @@ public class Executor {
         }
         return bin;
     }
+    
+    
+    
 }
