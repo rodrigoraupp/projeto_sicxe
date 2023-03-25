@@ -16,20 +16,9 @@ public class SimuladorSICXE {
     public static void main(String[] args) {
         
         int tamanhoMemoria = 2048;
-
-        //Memoria memoria = new Memoria(tamanhoMemoria);
-        //Registradores registradores = new Registradores();
         
         Executor executor = new Executor(tamanhoMemoria); 
         
-
-        /*memoria.setMemoria(7, "11110000");
-        memoria.setMemoria(0, "11110000");
-        
-        for(int x = 0; x<tamanhoRegistradores; x++){
-            System.out.println(x + " : "+ registradores.getRegistrador(x));
-        }
-        */
     }
     
 }

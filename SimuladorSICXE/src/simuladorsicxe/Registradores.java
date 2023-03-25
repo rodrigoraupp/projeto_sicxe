@@ -25,7 +25,7 @@ public class Registradores {
     }
     
     public void setRegistrador(int reg, String conteudo){
-        registradores.add(reg, conteudo);
+        registradores.set(reg, conteudo);
     }
     
 }
