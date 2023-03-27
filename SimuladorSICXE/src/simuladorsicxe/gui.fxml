@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #4c4c4c;" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="simuladorsicxe.Executor">
+   <children>
+      <Region layoutX="14.0" layoutY="71.0" prefHeight="218.0" prefWidth="200.0" style="-fx-background-color: #666666;" AnchorPane.bottomAnchor="111.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="386.0" AnchorPane.topAnchor="71.0" />
+      <Label layoutX="19.0" layoutY="72.0" prefHeight="18.0" prefWidth="46.0" text="Inputs" textFill="WHITE" AnchorPane.bottomAnchor="309.6" AnchorPane.leftAnchor="19.0" AnchorPane.rightAnchor="534.6" AnchorPane.topAnchor="72.0" />
+      <Label layoutX="22.0" layoutY="111.0" prefHeight="18.0" prefWidth="46.0" text="File:" textFill="WHITE" AnchorPane.bottomAnchor="270.6" AnchorPane.leftAnchor="22.0" AnchorPane.rightAnchor="531.6" AnchorPane.topAnchor="111.0" />
+      <TextField fx:id="textFieldNameFile" layoutX="47.0" layoutY="108.00000000000003" AnchorPane.bottomAnchor="266.4" AnchorPane.leftAnchor="47.0" AnchorPane.rightAnchor="403.4" AnchorPane.topAnchor="108.00000000000003" />
+      <Region layoutX="218.0" layoutY="71.0" prefHeight="218.0" prefWidth="215.0" style="-fx-background-color: #666666;" AnchorPane.bottomAnchor="111.0" AnchorPane.leftAnchor="218.0" AnchorPane.rightAnchor="167.0" AnchorPane.topAnchor="71.0" />
+      <Label layoutX="219.0" layoutY="71.99999999999997" prefHeight="18.0" prefWidth="55.0" text="Registers" textFill="WHITE" AnchorPane.bottomAnchor="309.6" AnchorPane.leftAnchor="219.0" AnchorPane.rightAnchor="325.8" AnchorPane.topAnchor="71.99999999999997" />
+      <Label layoutX="219.0" layoutY="102.0" prefHeight="18.0" prefWidth="55.0" text="ACC:" textFill="WHITE" AnchorPane.bottomAnchor="280.0" AnchorPane.leftAnchor="219.0" AnchorPane.rightAnchor="326.0" AnchorPane.topAnchor="102.0" />
+      <Label layoutX="220.0" layoutY="123.99999999999997" prefHeight="18.0" prefWidth="27.0" text="X:" textFill="WHITE" AnchorPane.bottomAnchor="257.6" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="352.8" AnchorPane.topAnchor="123.99999999999997" />
+      <Label layoutX="220.0" layoutY="143.99999999999997" prefHeight="18.0" prefWidth="27.0" text="L:" textFill="WHITE" AnchorPane.bottomAnchor="237.60000000000247" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="352.8" AnchorPane.topAnchor="143.99999999999997" />
+      <Label layoutX="220.0" layoutY="161.0" prefHeight="18.0" prefWidth="34.0" text="B:" textFill="WHITE" AnchorPane.bottomAnchor="221.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="346.0" AnchorPane.topAnchor="161.0" />
+      <Label layoutX="220.0" layoutY="183.0" prefHeight="18.0" prefWidth="27.0" text="S:" textFill="WHITE" AnchorPane.bottomAnchor="198.6" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="352.8" AnchorPane.topAnchor="183.0" />
+      <Label layoutX="220.0" layoutY="204.0" prefHeight="18.0" prefWidth="27.0" text="T:" textFill="WHITE" AnchorPane.bottomAnchor="177.6" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="352.8" AnchorPane.topAnchor="204.0" />
+      <Label fx:id="valorAcumulador" layoutX="248.0" layoutY="102.0" prefHeight="18.0" prefWidth="181.0" textFill="WHITE" AnchorPane.bottomAnchor="280.0" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="171.0" AnchorPane.topAnchor="102.0" />
+      <Label fx:id="registradorIndice" layoutX="247.0" layoutY="122.0" prefHeight="18.0" prefWidth="181.0" text="1110" textFill="WHITE" AnchorPane.bottomAnchor="260.0" AnchorPane.leftAnchor="247.0" AnchorPane.rightAnchor="172.0" AnchorPane.topAnchor="122.0" />
+      <Label fx:id="registradorLigacao" layoutX="248.0" layoutY="142.0" prefHeight="18.0" prefWidth="181.0" text="0000" textFill="WHITE" AnchorPane.bottomAnchor="240.0" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="171.0" AnchorPane.topAnchor="142.0" />
+      <Label fx:id="registradorBase" layoutX="248.0" layoutY="161.0" prefHeight="18.0" prefWidth="181.0" text="000000000000000000000000" textFill="WHITE" AnchorPane.bottomAnchor="221.0" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="171.0" AnchorPane.topAnchor="161.0" />
+      <Label layoutX="247.0" layoutY="183.0" prefHeight="18.0" prefWidth="181.0" text="000000000000000000000000" textFill="WHITE" AnchorPane.bottomAnchor="199.0" AnchorPane.leftAnchor="247.0" AnchorPane.rightAnchor="172.0" AnchorPane.topAnchor="183.0" />
+      <Label layoutX="248.0" layoutY="202.0" prefHeight="18.0" prefWidth="181.0" text="000000000000000000000000" textFill="WHITE" AnchorPane.bottomAnchor="180.0" AnchorPane.leftAnchor="248.0" AnchorPane.rightAnchor="171.0" AnchorPane.topAnchor="202.0" />
+      <Region layoutX="438.0" layoutY="71.0" prefHeight="318.0" prefWidth="150.0" style="-fx-background-color: #666666;" />
+      <Label layoutX="439.0" layoutY="72.0" prefHeight="18.0" prefWidth="55.0" text="Memory" textFill="WHITE" />
+      <Button fx:id="buttonExecutarObjeto" layoutX="206.0" layoutY="39.0" mnemonicParsing="false" onAction="#executarObjetoTeste" style="-fx-background-color: #666666;" text="Load" textFill="WHITE" />
+      <Button fx:id="buttonExecutaObjeto" layoutX="252.0" layoutY="39.0" mnemonicParsing="false" onAction="#executaObjeto" style="-fx-background-color: #666666;" text="Step" textFill="WHITE" />
+      <TableView fx:id="table" layoutX="438.0" layoutY="90.0" prefHeight="300.0" prefWidth="150.0" style="-fx-background-color: #666666;">
+         <columns>
+            <TableColumn fx:id="endereco" prefWidth="75.0" text="Endereço" />
+            <TableColumn fx:id="valor" prefWidth="75.0" text="Valor" />
+         </columns></TableView>
+      <Label layoutX="220.0" layoutY="221.0" prefHeight="18.0" prefWidth="27.0" text="PC:" textFill="WHITE" />
+      <Label layoutX="220.0" layoutY="240.0" prefHeight="18.0" prefWidth="27.0" text="SW:" textFill="WHITE" />
+      <Label fx:id="registradosStatus" layoutX="248.0" layoutY="240.0" prefHeight="18.0" prefWidth="181.0" textFill="WHITE" />
+      <Label fx:id="labelRegisterPC" layoutX="248.0" layoutY="221.0" prefHeight="18.0" prefWidth="181.0" text="000000000000000000000000" textFill="WHITE" />
+   </children>
+</AnchorPane>

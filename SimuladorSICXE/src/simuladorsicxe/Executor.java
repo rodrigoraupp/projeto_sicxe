@@ -4,6 +4,23 @@
  */
 package simuladorsicxe;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+
 /**
  *
  * @author rodrigolaforet
@@ -13,6 +30,79 @@ public class Executor {
     private Memoria memoria;
     private Registradores registradores;
     
+    //______________________________CODIGO WESLEY_______________________________________
+
+
+
+    @FXML
+    private Button buttonExecutarObjeto;
+
+    @FXML
+    private Label labelRegisterPC;
+
+    @FXML
+    private TextField textFieldNameFile;
+    
+    @FXML
+    private Label valorAcumulador;
+
+    @FXML
+    private Label registradorBase;
+    
+    @FXML
+    private TableView<Endereco> table;
+
+    @FXML
+    private TableColumn<Endereco, String> endereco;
+
+    @FXML
+    private TableColumn<Endereco, String> valor;
+
+    @FXML
+    private Label registradorIndice;
+
+    @FXML
+    private Label registradorLigacao;
+
+    @FXML
+    private Label registradosStatus;
+
+    @FXML
+    private Button buttonExecutaObjeto;
+
+    TableView<Endereco> tableView = new TableView<>();
+    ObservableList<Endereco> data = FXCollections.observableArrayList();
+
+    
+   
+    @FXML
+    void executarObjetoTeste(ActionEvent event) {
+
+        memoria = new Memoria(2048, textFieldNameFile.getText());
+
+        endereco.setCellValueFactory(new PropertyValueFactory<>("endereco"));
+
+        valor.setCellValueFactory(new PropertyValueFactory<>("valor"));
+
+        this.registradores = new Registradores();
+    
+        for (int i = 0; i < memoria.getTamMemoria(); i++) {
+            Endereco endereco = memoria.getEndereco(i);
+            data.add(endereco);
+        }
+    
+        table.setItems(data);
+       
+
+       
+       
+
+    }
+
+    
+
+   //______________________________CODIGO WESLEY_______________________________________
+   /* 
     public Executor(int tamanhoMemoria){
         this.memoria = new Memoria(tamanhoMemoria);
         this.registradores = new Registradores();
@@ -50,13 +140,20 @@ public class Executor {
         imprimeRegistradoresEmDecimal();
         //imprimeRegistradores();
  
-    }
+    } */
   
     //PC = 0
     //TIPO2 = 90h PC = 3
     //vê que tipo é, calcula quantos bytes tem pra poder atualizar o PC pra apontar pra próxima instrução
     // 10010000 00000000 [00000000]
-    public void executaObjeto(){
+
+
+    
+    @FXML
+    void executaObjeto(ActionEvent event) {
+
+    
+   // public void executaObjeto(){
         //qual é o PC?
         int pcEmDecimal;
         int varInteira;
@@ -69,47 +166,68 @@ public class Executor {
         String proximoByte;
         String valorEmString;
         
-        pcEmDecimal = Integer.parseInt(registradores.getRegistrador(8),2); //isso aqui é o PC em decimal
+        //pcEmDecimal = Integer.parseInt(registradores.getRegistrador(8),2); //isso aqui é o PC em decimal
+        pcEmDecimal = Integer.parseInt(  labelRegisterPC.getText(),2);
+     
         instrucao = memoria.getMemoria(pcEmDecimal);    //opcode com flags
+        System.out.println("isntrucao: " + instrucao);
         opcode = instrucao.substring(0,6);              //opcode puro
         opcode = opcode + "00";
         proximoByte = memoria.getMemoria(pcEmDecimal + 1);
-        
+        System.out.println("Opcode: " + opcode);
+
+        if(opcode == "00000000"){
+            System.out.println("hello world final");
+            event.consume();
+        }
         
         switch (opcode) {
-            case "10010000": //ADDR r1, r2 = 10010000 00010010, é do tipo 2
+            case "10010000": //ADDR r1, r2 = 10010000 00010010, é do tipo 2          "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
                 regUmIndex = retornaIndexDosRegistradores(proximoByte, 1);
                 regDoisIndex = retornaIndexDosRegistradores(proximoByte, 2);
-                varInteira = converteDecimal(registradores.getRegistrador(regDoisIndex)) + converteDecimal(registradores.getRegistrador(regUmIndex));
+                //varInteira = converteDecimal(registradores.getRegistrador(regDoisIndex)) + converteDecimal(registradores.getRegistrador(regUmIndex));
+                varInteira = converteDecimal(registradorLigacao.getText()) + converteDecimal(registradorIndice.getText());
                 valorEmString = stringFinalRegistrador(varInteira);
-                registradores.setRegistrador(regDoisIndex, valorEmString); //destino é o registrador 2
+                //registradores.setRegistrador(regDoisIndex, valorEmString); //destino é o registrador 2
+                registradorLigacao.setText(valorEmString);
                 incrementaPC(pcEmDecimal, 2);
                 break;
                 
-            case "10110100": //CLEAR r1
+            case "10110100": //CLEAR r1                                           "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
                 regUmIndex = retornaIndexDosRegistradores(proximoByte, 1);
-                registradores.setRegistrador(regUmIndex, "000000000000000000000000");
+                //registradores.setRegistrador(regUmIndex, "000000000000000000000000");
                 incrementaPC(pcEmDecimal, 2);
+                registradorIndice.setText("000000000000000000000000");
                 break;
            
-            case "10100000": //COMPR
+            case "10100000": //COMPR                                                "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"        Obs: nesse CASE tinha faltado o incrementa PC
                 regUmIndex = retornaIndexDosRegistradores(proximoByte, 1);
                 regDoisIndex = retornaIndexDosRegistradores(proximoByte, 2);
-                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
-                conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                //conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+                conteudoReg1 = converteDecimal(registradorIndice.getText());
+                //conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                conteudoReg2 = converteDecimal(registradorLigacao.getText());
                 setSW(conteudoReg1, conteudoReg2);
-                
+                incrementaPC(pcEmDecimal, 2);
                 break;
                    
                 
-            case "10011100": //DIVR r1, r2 =   (r2) <- r2/r1 
+            case "10011100": //DIVR r1, r2 =   (r2) <- r2/r1                       "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"   
+                //regUmIndex = retornaIndexDosRegistradores(proximoByte, 1);
+               
                 regUmIndex = retornaIndexDosRegistradores(proximoByte, 1);
                 regDoisIndex = retornaIndexDosRegistradores(proximoByte, 2);
-                conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
-                conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                System.out.println("hello world");
+               // conteudoReg1 = converteDecimal(registradores.getRegistrador(regUmIndex));
+               // conteudoReg2 = converteDecimal(registradores.getRegistrador(regDoisIndex));
+                conteudoReg1 = converteDecimal(registradorIndice.getText());
+                conteudoReg2 = converteDecimal(registradorLigacao.getText());
+                System.out.println(conteudoReg1);
+                System.out.println(conteudoReg2);
+                conteudoReg1 = 14;
                 if(conteudoReg2 != 0){
                     valorEmString = stringFinalRegistrador(conteudoReg2/conteudoReg1);
-                    registradores.setRegistrador(regDoisIndex,valorEmString);
+                    registradorLigacao.setText(valorEmString);
                 }
                 incrementaPC(pcEmDecimal, 2);
                 break;
@@ -203,12 +321,13 @@ public class Executor {
                 break;    
                 
                 
-            case "00000000": //LDA
+            case "00000000": //LDA "OKKKKKKKKKKKKKKKKKKKKKKKKKKKKK"
                 executaOP(instrucao, pcEmDecimal, "LDA");
                 break;
                 
             case "01101000": //LDB
                 executaOP(instrucao, pcEmDecimal, "LDB");
+                System.out.println("LDB 2");
                 break;
                 
             case "01010000": //LDCH
@@ -312,7 +431,9 @@ public class Executor {
         if(esq < dir){
             comparacao = 2;
         }
-        registradores.setRegistrador(9, regularizaStringPra24Bits(Integer.toBinaryString(comparacao)));
+        System.out.println("hello world");
+        //registradores.setRegistrador(9, regularizaStringPra24Bits(Integer.toBinaryString(comparacao)));
+        registradosStatus.setText(regularizaStringPra24Bits(Integer.toBinaryString(comparacao)));
     }
     
     public void imprimeRegistradores(){
@@ -345,15 +466,18 @@ public class Executor {
         if(formato == 2){
             pcEmDecimal = pcEmDecimal + 2;
             registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
+            labelRegisterPC.setText(regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
         }
         if(formato == 3){
             pcEmDecimal = pcEmDecimal + 3;
             registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
+            labelRegisterPC.setText(regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
         }
         
         if(formato == 4){
             pcEmDecimal = pcEmDecimal + 4;
             registradores.setRegistrador(8, regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
+            labelRegisterPC.setText(regularizaStringPra24Bits(Integer.toBinaryString(pcEmDecimal)));
         }
         else{
             //
@@ -387,23 +511,27 @@ public class Executor {
             resultado = proximoByte.substring(4,8);
             resultado = resultado + terceiroByte + quartoByte; //tem 20 bits - 0000 00000000 00000000
             endereco1 = converteDecimal(resultado); //agora é decimal.
+       
         }
 
         if(modoDeEnderecamento == 1){
             if((flagX == '0') && (flagB == '0') && (flagP =='0')){
                 resultado = memoria.getMemoria(endereco1) + memoria.getMemoria(endereco1 + 1) + memoria.getMemoria(endereco1 + 2);
+       
             }
 
             if((flagX == '0') && (flagB == '1') && (flagP =='0')){
                 endereco2 = converteDecimal(registradores.getRegistrador(3)); //registrador B
                 endereco3 = endereco1 + endereco2;
                 resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+           
             }
 
             if((flagX == '1') && (flagB == '0') && (flagP =='0')){
                 endereco2 = converteDecimal(registradores.getRegistrador(1)); //registrador X
                 endereco3 = endereco1 + endereco2;
                 resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+            
             }
 
             if((flagX == '1') && (flagB == '0') && (flagP =='1')){
@@ -411,6 +539,8 @@ public class Executor {
                 endereco2 = converteDecimal(registradores.getRegistrador(1));
                 endereco3 = endereco1 + endereco2;
                 resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+             
+               
             }
 
             if((flagX == '1') && (flagB == '1') && (flagP =='0')){
@@ -418,11 +548,13 @@ public class Executor {
                 endereco2 = converteDecimal(registradores.getRegistrador(1)); 
                 endereco3 = endereco1 + endereco2;         
                 resultado = memoria.getMemoria(endereco3) + memoria.getMemoria(endereco3 + 1) + memoria.getMemoria(endereco3 + 2);
+            
             }
         }
         if(modoDeEnderecamento == 2){
             endereco2 = converteDecimal(memoria.getMemoria(endereco1));
             resultado = memoria.getMemoria(endereco2) + memoria.getMemoria(endereco2 + 1) + memoria.getMemoria(endereco2 + 2);
+          
         }
         return resultado;
     }
@@ -437,6 +569,7 @@ public class Executor {
         String byteB = "";
         String byteC = "";
         String conteudoRegistrador = "";
+        System.out.println(operacao);
         
         if(operacao == "SOMA"){
             varInteira = varInteira + converteDecimal(valorEmString);
@@ -495,10 +628,13 @@ public class Executor {
         if(operacao == "LDA"){
             valorEmString = regularizaStringPra24Bits(valorEmString);
             registradores.setRegistrador(0, valorEmString);
+            valorAcumulador.setText(valorEmString);
+
         }
         if(operacao == "LDB"){
             valorEmString = regularizaStringPra24Bits(valorEmString);
             registradores.setRegistrador(3, valorEmString);
+            registradorBase.setText(valorEmString);
         }
         if(operacao == "LDCH"){
             byteA = registradores.getRegistrador(0);
@@ -541,79 +677,79 @@ public class Executor {
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(0);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+           // memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
             memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+           // memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "STB"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(3);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+           // memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
-            memoria.setMemoria(indexMemoria, byteB);
+           // memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+           // memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "STCH"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(0);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+           // memoria.setMemoria(indexMemoria, byteA);
         }
         if(operacao == "STL"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(2);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+         //   memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
-            memoria.setMemoria(indexMemoria, byteB);
+         //   memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+         //   memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "STS"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(4);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+         //   memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
-            memoria.setMemoria(indexMemoria, byteB);
+        //    memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+         //   memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "STT"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(5);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+          //  memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
-            memoria.setMemoria(indexMemoria, byteB);
+           // memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+          //  memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "STX"){
             indexMemoria = converteDecimal(valorEmString);
             valorEmString = registradores.getRegistrador(1);
             byteA = valorEmString.substring(0, 8);
-            memoria.setMemoria(indexMemoria, byteA);
+          //  memoria.setMemoria(indexMemoria, byteA);
             indexMemoria = indexMemoria + 1;
             byteB = valorEmString.substring(8, 16);
-            memoria.setMemoria(indexMemoria, byteB);
+          //  memoria.setMemoria(indexMemoria, byteB);
             indexMemoria = indexMemoria + 1;
             byteC = valorEmString.substring(16, 24);
-            memoria.setMemoria(indexMemoria, byteC);
+          //  memoria.setMemoria(indexMemoria, byteC);
         }
         if(operacao == "SUB"){
             varInteira = varInteira - converteDecimal(valorEmString);
@@ -642,7 +778,8 @@ public class Executor {
         flagX = proximoByte.charAt(0);
         flagB = proximoByte.charAt(1);
         flagP = proximoByte.charAt(2);
-        flagE = proximoByte.charAt(3);        
+        flagE = proximoByte.charAt(3);      
+        
         
         if(flagE == '0'){
                     //endereçamento... proximoByte = 0000 0000
@@ -651,6 +788,8 @@ public class Executor {
                         if((flagX == '0') && (flagB == '0') && (flagP == '0')){ // disp é endereço
                             valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 1, formatoInstrucao, quartoByte);
                             defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                           
+                         
                         }
                         if((flagX == '0') && (flagB == '0') && (flagP == '1')){
                             //IMPLEMENTAR
@@ -658,29 +797,38 @@ public class Executor {
                         if((flagX == '0') && (flagB == '1') && (flagP == '0')){ //(B) + disp é o endereço
                             valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 1, formatoInstrucao, quartoByte);
                             defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                            
+                         
                         }
                         
                         if((flagX == '1') && (flagB == '0') && (flagP == '0')){ // (X) + disp é o endereço
                             valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP,1, formatoInstrucao, quartoByte);
                             defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                          
+                    
                         }
                         if((flagX == '1') && (flagB == '0') && (flagP == '1')){ //(PC) + (X
                             valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 1, formatoInstrucao, quartoByte);
                             defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                            
+                         
                         }
                         if((flagX == '1') && (flagB == '1') && (flagP == '0')){
                             valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 1, formatoInstrucao, quartoByte);
                             defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                            
                         }
                     }
                     if((flagN == '1') && (flagI == '0')){//indireto
                         valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 2, formatoInstrucao, quartoByte);
                         defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                       
                         
                     }
                     if((flagN == '0') && (flagI == '1')){//imediato
                         valorEmString = buscaEndereco(proximoByte, terceiroByte, flagX, flagB, flagP, 0, formatoInstrucao, quartoByte);
                         defineOperacao(varInteira, valorEmString, tipoOperacao, formatoInstrucao, pcEmDecimal);
+                        System.out.println("imediato"); 
                     }
         }
         if(flagE == '1'){
