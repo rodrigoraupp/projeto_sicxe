@@ -14,4 +14,5 @@ Projeto para a cadeira de Programação de Sistemas da UFPEL.
 * BRUNO GABRIEL GONCALVES SOARES
 * ARTHUR MARTINS DOS SANTOS
 
-Montador
+Vídeos das apresentações estão no [Drive](https://drive.google.com/drive/folders/118kq6eM1RVCk9uUD1hl_84JpfHDYfXEC?usp=sharing) dos alunos.
+Acessível para ferrugem@inf.ufpel.edu.br
